@@ -1,12 +1,10 @@
-// lib/models/task_model.dart
-
 class TaskModel {
-  final int? id;
-  final String? title;
-  final String? description;
-  final DateTime? createdAt;
-  final DateTime? dueDate;
-  final bool? isDone;
+  int? id;
+  String? title;
+  String? description;
+  DateTime? createdAt;
+  DateTime? dueDate;
+  bool? isDone;
 
   TaskModel({
     this.id,
@@ -37,5 +35,30 @@ class TaskModel {
       'due_date': dueDate?.toIso8601String(),
       'is_done': isDone,
     };
+  }
+
+  // Setters
+  set setId(int? value) {
+    id = value;
+  }
+
+  set setTitle(String? value) {
+    title = value;
+  }
+
+  set setDescription(String? value) {
+    description = value;
+  }
+
+  set setCreatedAt(DateTime? value) {
+    createdAt = value;
+  }
+
+  set setDueDate(DateTime? value) {
+    dueDate = value;
+  }
+
+  set setIsDone(bool? value) {
+    isDone = value;
   }
 }

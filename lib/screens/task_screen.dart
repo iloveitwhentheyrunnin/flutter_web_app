@@ -18,59 +18,77 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Task List'),
+        title: Text('Mes tâches'),
       ),
       body: FutureBuilder<List<TaskModel>>(
         future: taskService.fetchTasks(),
         builder: (context, snapshot) {
-          // Vérification de la présence de données
           if (snapshot.hasData && snapshot.data != null && snapshot.data!.isNotEmpty) {
             List<TaskModel> tasks = snapshot.data!;
-            return ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                TaskModel task = tasks[index];
 
-                // Formattage de ma date en fr
-                final DateFormat dateFormat = DateFormat.yMMMMd('fr_FR');
+            return SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  children: tasks.map((TaskModel task) {
+                    final DateFormat dateFormat = DateFormat.yMMMMd('fr_FR');
 
-                return Card(
-                  color: tdBGColor,
-                  margin: EdgeInsets.all(8.0),
-                  child: ListTile(
-                    title: Text(
-                      "Titre: ${task.title}" ?? 'No Title',
-                      style: TextStyle(
-                        decoration: task.isDone ?? false ? TextDecoration.lineThrough : TextDecoration.none,
+                    return Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      margin: EdgeInsets.all(8.0),
+                      child: Card(
+                        color: tdBGColor,
+                        child: ListTile(
+                          title: Text(
+                            "Titre: ${task.title}" ?? 'No Title',
+                            style: TextStyle(
+                              decoration: task.isDone ?? false ? TextDecoration.lineThrough : TextDecoration.none,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Description: ${task.description}" ?? 'No Description'),
+                              Text("Créee le: ${dateFormat.format(task.createdAt!)}" ?? 'No Created At'),
+                              Text("Pour le: ${dateFormat.format(task.dueDate!)}" ?? 'No Due At'),
+                            ],
+                          ),
+                          trailing: Checkbox(
+                            value: task.isDone ?? false,
+                            onChanged: (value) async {
+                              setState(() {
+                                task.isDone = value;
+                              });
+
+                              try {
+                                await taskService.updateTask(task);
+                              } catch (error) {
+                                setState(() {
+                                  task.isDone = !value!;
+                                });
+                                print('Error updating task: $error');
+                              }
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Description: ${task.description}" ?? 'No Description'),
-                        Text("Créee le: ${dateFormat.format(task.createdAt!)}" ?? 'No Created At'),
-                        Text("Pour le: ${dateFormat.format(task.dueDate!)}" ?? 'No Due At'),
-                      ],
-                    ),
-                    trailing: Checkbox(
-                      value: task.isDone ?? false,
-                      onChanged: (value) {
-                        // TODO - toggle le bool is_done
-                      },
-                    ),
-                  ),
-                );
-              },
+                    );
+                  }).toList(),
+                ),
+              ),
             );
           } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
           } else {
-              return Center(
-                child: Text('Aucunes tâches pour le moment, on prend des vacances? :)',
-                style: TextStyle(fontSize: 25), textAlign: TextAlign.center,),
-              );
+            return Center(
+              child: Text(
+                'Aucunes tâches pour le moment, on prend des vacances? :)',
+                style: TextStyle(fontSize: 25),
+                textAlign: TextAlign.center,
+              ),
+            );
           }
         },
       ),
