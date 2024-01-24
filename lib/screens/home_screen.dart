@@ -7,11 +7,9 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: tdBGColor,
-        ),
+      appBar: AppBar(),
       body: Container(
-        child: Text('This has began..'),
+        child: Text('This has begadsn..'),
       )
     );
   }

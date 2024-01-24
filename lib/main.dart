@@ -1,23 +1,25 @@
+import 'package:api_rest_front/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import './screens/home.dart';
+import 'screens/task_screen.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+
 
 void main() {
-  runApp(const MyApp());
+  Intl.defaultLocale = 'fr_FR'; // or your desired default locale
+  initializeDateFormatting(); // No arguments needed
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ToDo App',
-      home: Home(),
+      title: 'My Todo List App',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => TaskScreen(),
+      },
     );
   }
 }
