@@ -50,17 +50,29 @@ class _TaskScreenState extends State<TaskScreen> {
                             children: [
                               Text("Description: ${task.description}" ?? 'No Description'),
                               Text("Créee le: ${dateFormat.format(task.createdAt!)}" ?? 'No Created At'),
-                              Text("Pour le: ${dateFormat.format(task.dueDate!)}" ?? 'No Due At'),
+                              Text("Pour le: ${dateFormat.format(task.dueDate!)}" ??'No Due At'),
+                            ElevatedButton(
+                                child: const Text('Supprimer'),
+                                onPressed: () async {
+                                  try {
+                                    await taskService.deleteTask(task);
+                                    setState(() {
+                                      tasks.remove(task);
+                                    });
+                                  } catch (error) {
+                                    print('Error deleting task: $error');
+                                  }
+                                },
+                              ),
                             ],
                           ),
                           trailing: Checkbox(
                             value: task.isDone ?? false,
                             onChanged: (value) async {
-                              setState(() {
-                                task.isDone = value;
-                              });
-
                               try {
+                                setState(() {
+                                  task.isDone = value;
+                                });
                                 await taskService.updateTask(task);
                               } catch (error) {
                                 setState(() {
@@ -82,10 +94,10 @@ class _TaskScreenState extends State<TaskScreen> {
               child: Text('Error: ${snapshot.error}'),
             );
           } else {
-            return Center(
+            return const Center(
               child: Text(
                 'Aucunes tâches pour le moment, on prend des vacances? :)',
-                style: TextStyle(fontSize: 25),
+                style: TextStyle(fontSize: 20),
                 textAlign: TextAlign.center,
               ),
             );
