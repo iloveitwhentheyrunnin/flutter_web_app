@@ -1,24 +1,24 @@
 class TaskModel {
   int? id;
-  String? title;
-  String? description;
-  DateTime? createdAt;
-  DateTime? dueDate;
-  bool? isDone;
+  String titre;
+  String description;
+  DateTime createdAt;
+  DateTime dueDate;
+  bool isDone;
 
   TaskModel({
     this.id,
-    this.title,
-    this.description,
-    this.createdAt,
-    this.dueDate,
-    this.isDone,
+    required this.titre,
+    required this.description,
+    required this.createdAt,
+    required this.dueDate,
+    required this.isDone,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json['id'],
-      title: json['titre'],
+      titre: json['titre'],
       description: json['description'],
       createdAt: DateTime.parse(json['created_at']),
       dueDate: DateTime.parse(json['due_date']),
@@ -29,10 +29,10 @@ class TaskModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'titre': title,
+      'titre': titre,
       'description': description,
-      'created_at': createdAt?.toIso8601String(),
-      'due_date': dueDate?.toIso8601String(),
+      'created_at': createdAt.toIso8601String(), // Convert DateTime to string
+      'due_date': dueDate.toIso8601String(), // Convert DateTime to string
       'is_done': isDone,
     };
   }
@@ -42,23 +42,23 @@ class TaskModel {
     id = value;
   }
 
-  set setTitle(String? value) {
-    title = value;
+  set setTitle(String value) {
+    titre = value;
   }
 
-  set setDescription(String? value) {
+  set setDescription(String value) {
     description = value;
   }
 
-  set setCreatedAt(DateTime? value) {
+  set setCreatedAt(DateTime value) {
     createdAt = value;
   }
 
-  set setDueDate(DateTime? value) {
+  set setDueDate(DateTime value) {
     dueDate = value;
   }
 
-  set setIsDone(bool? value) {
+  set setIsDone(bool value) {
     isDone = value;
   }
 }

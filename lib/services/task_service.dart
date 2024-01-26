@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:js_interop';
 import 'package:api_rest_front/models/task_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -63,10 +64,10 @@ class TaskService {
         Uri.parse('$apiUrl/create'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'titre': newTask.title,
+          'titre': newTask.titre,
           'description': newTask.description,
-          'createdAt': DateTime.now(),
-          'dueDate': newTask.dueDate,
+          'createdAt': newTask.createdAt.toIso8601String(), // Convert DateTime to string
+          'dueDate': newTask.dueDate.toIso8601String(), // Convert DateTime to string,
           'isDone': false,
         }),
       );
