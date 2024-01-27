@@ -119,21 +119,27 @@ class _TaskScreenState extends State<TaskScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           showModalBottomSheet(
             context: context,
             builder: (BuildContext bc) {
               return MyCustomForm(
                 onCreateTask: (TaskModel newTask) async {
                   try {
-                    // appelle de mon service pour l'api
-                    print(newTask.toJson());
-                    TaskModel createdTask = await taskService.createTask(newTask);
+                    // call service vers api pour créer
+                    TaskModel createdTask =
+                        await taskService.createTask(newTask);
                     print('Created task: $createdTask');
 
-                    // affichage de mes taches a jour
-                    List<TaskModel> updatedTasks = await taskService.fetchTasks();
+                    // call api pour fetch
+                    List<TaskModel> updatedTasks =
+                        await taskService.fetchTasks();
                     print('Updated tasks: $updatedTasks');
+
+                    // mise a jour de l'état pour afficher
+                    setState(() {
+                      updatedTasks;
+                    });
                   } catch (error) {
                     print('Error creating task: $error');
                   }

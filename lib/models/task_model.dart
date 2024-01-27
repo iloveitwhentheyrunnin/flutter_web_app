@@ -16,23 +16,23 @@ class TaskModel {
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
-    return TaskModel(
-      id: json['id'],
-      titre: json['titre'],
-      description: json['description'],
-      createdAt: DateTime.parse(json['created_at']),
-      dueDate: DateTime.parse(json['due_date']),
-      isDone: json['is_done'],
-    );
-  }
+  return TaskModel(
+    id: json['id'],
+    titre: json['titre'],
+    description: json['description'],
+    createdAt: DateTime.parse(json['created_at'].toString()),
+    dueDate: DateTime.parse(json['due_date'].toString()),
+    isDone: json['is_done'],
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'titre': titre,
       'description': description,
-      'created_at': createdAt.toIso8601String(), // Convert DateTime to string
-      'due_date': dueDate.toIso8601String(), // Convert DateTime to string
+      'created_at': createdAt, // Convert DateTime to string
+      'due_date': dueDate, // Convert DateTime to string
       'is_done': isDone,
     };
   }

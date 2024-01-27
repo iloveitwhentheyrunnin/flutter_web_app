@@ -58,36 +58,53 @@ class TaskService {
   }
 
   //method to create my task!
-  Future<TaskModel> createTask(TaskModel newTask) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/create'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'titre': newTask.titre,
-          'description': newTask.description,
-          'createdAt': newTask.createdAt.toIso8601String(), // Convert DateTime to string
-          'dueDate': newTask.dueDate.toIso8601String(), // Convert DateTime to string,
-          'isDone': false,
-        }),
-      );
+Future<TaskModel> createTask(TaskModel newTask) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$apiUrl/create'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'titre': newTask.titre,
+        'description': newTask.description,
+        'createdAt': newTask.createdAt.toIso8601String(),
+        'dueDate': newTask.dueDate.toIso8601String(),
+        'isDone': false,
+      }),
+    );
 
-      if (response.statusCode == 201) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        final TaskModel createdTask = TaskModel.fromJson(responseData);
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData.containsKey('task') && responseData['task'] is Map<String, dynamic>) {
+        // Extract task data from the 'task' key
+        final taskData = responseData['task'] as Map<String, dynamic>;
+
+        // Check for null values in the response data
+        final createdTask = TaskModel.fromJson({
+          'id': taskData['id'],
+          'titre': taskData['titre'],
+          'description': taskData['description'],
+          'created_at': taskData['created_at'],
+          'due_date': taskData['due_date'],
+          'is_done': taskData['is_done'],
+        });
 
         print('Task created successfully: $createdTask');
 
         return createdTask;
       } else {
-        print('Failed to create task. Status code: ${response.statusCode}');
+        print('Failed to create task. Task data is missing or empty.');
         throw Exception('Failed to create task');
       }
-    } catch (error) {
-      print('Error creating task: $error');
-      throw Exception('Error creating task');
+    } else {
+      print('Failed to create task. Status code: ${response.statusCode}');
+      throw Exception('Failed to create task');
     }
+  } catch (error) {
+    print('Error creating task: $error');
+    throw Exception('Error creating task');
   }
+}
 
   //method to delete my task
   Future<void> deleteTask(TaskModel task) async {
