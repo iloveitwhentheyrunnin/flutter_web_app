@@ -57,54 +57,84 @@ class TaskService {
     }
   }
 
-  //method to create my task!
-Future<TaskModel> createTask(TaskModel newTask) async {
-  try {
-    final response = await http.post(
-      Uri.parse('$apiUrl/create'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'titre': newTask.titre,
-        'description': newTask.description,
-        'createdAt': newTask.createdAt.toIso8601String(),
-        'dueDate': newTask.dueDate.toIso8601String(),
-        'isDone': false,
-      }),
-    );
+  // method to update my task
+  Future<void> editTask(TaskModel task, String newTitle, String newDescription) async {
+    try {
+      // Vérifier les changements avant le patch
+      if (task.titre != newTitle || task.description != newDescription) {
+        final response = await http.patch(
+          Uri.parse('$apiUrl/edit/${task.id}'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'titre': newTitle,
+            'description': newDescription,
+          }),
+        );
 
-    if (response.statusCode == 201) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-
-      if (responseData.containsKey('task') && responseData['task'] is Map<String, dynamic>) {
-        // Extract task data from the 'task' key
-        final taskData = responseData['task'] as Map<String, dynamic>;
-
-        // Check for null values in the response data
-        final createdTask = TaskModel.fromJson({
-          'id': taskData['id'],
-          'titre': taskData['titre'],
-          'description': taskData['description'],
-          'created_at': taskData['created_at'],
-          'due_date': taskData['due_date'],
-          'is_done': taskData['is_done'],
-        });
-
-        print('Task created successfully: $createdTask');
-
-        return createdTask;
+        if (response.statusCode == 200) {
+          print('Task updated successfully: $task');
+        } else {
+          print('Failed to update task. Status code: ${response.statusCode}');
+          throw Exception('Failed to update task');
+        }
       } else {
-        print('Failed to create task. Task data is missing or empty.');
+        // Pas de changements, ne rien faire
+        print('No changes in title or description for task: $task');
+      }
+    } catch (error) {
+      print('Error updating task: $error');
+      throw Exception('Error updating task');
+    }
+  }
+
+    //method to create my task!
+  Future<TaskModel> createTask(TaskModel newTask) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/create'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'titre': newTask.titre,
+          'description': newTask.description,
+          'createdAt': newTask.createdAt.toIso8601String(),
+          'dueDate': newTask.dueDate.toIso8601String(),
+          'isDone': false,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData.containsKey('task') && responseData['task'] is Map<String, dynamic>) {
+          // Extract task data from the 'task' key
+          final taskData = responseData['task'] as Map<String, dynamic>;
+
+          // Check for null values in the response data
+          final createdTask = TaskModel.fromJson({
+            'id': taskData['id'],
+            'titre': taskData['titre'],
+            'description': taskData['description'],
+            'created_at': taskData['created_at'],
+            'due_date': taskData['due_date'],
+            'is_done': taskData['is_done'],
+          });
+
+          print('Task created successfully: $createdTask');
+
+          return createdTask;
+        } else {
+          print('Failed to create task. Task data is missing or empty.');
+          throw Exception('Failed to create task');
+        }
+      } else {
+        print('Failed to create task. Status code: ${response.statusCode}');
         throw Exception('Failed to create task');
       }
-    } else {
-      print('Failed to create task. Status code: ${response.statusCode}');
-      throw Exception('Failed to create task');
+    } catch (error) {
+      print('Error creating task: $error');
+      throw Exception('Error creating task');
     }
-  } catch (error) {
-    print('Error creating task: $error');
-    throw Exception('Error creating task');
   }
-}
 
   //method to delete my task
   Future<void> deleteTask(TaskModel task) async {

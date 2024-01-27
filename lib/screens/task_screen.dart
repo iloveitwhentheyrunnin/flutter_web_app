@@ -108,9 +108,7 @@ class _TaskScreenState extends State<TaskScreen> {
                                       }
                                     },
                                   ),
-                                  const SizedBox(
-                                      width:
-                                          10.0), // Adjust the width as needed
+                                  const SizedBox(width:10.0), // Adjust the width as needed
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,
@@ -124,6 +122,76 @@ class _TaskScreenState extends State<TaskScreen> {
                                       color: tdBGColor,
                                     ),
                                     onPressed: () async {
+                                      _titreController.text = task.titre;
+                                      _descriptionController.text = task.description;
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              scrollable: true,
+                                              title: const Text('Modifier'),
+                                              content: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Form(
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      TextFormField(
+                                                        cursorColor: tdBGColor,
+                                                        controller: _titreController,
+                                                        decoration: const InputDecoration(
+                                                          labelText: 'Titre',
+                                                          labelStyle: TextStyle(color: tdBGColor),
+                                                          icon: Icon(Icons.title),
+                                                          focusedBorder: UnderlineInputBorder(
+                                                            borderSide: BorderSide(color: Colors.black), // Change the border color
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      TextFormField(
+                                                        cursorColor: tdBGColor,
+                                                        controller: _descriptionController,
+                                                        decoration: const InputDecoration(
+                                                          labelText: 'Description',
+                                                          labelStyle: TextStyle(color: tdBGColor),
+                                                          icon: Icon(Icons.message),
+                                                          focusedBorder: UnderlineInputBorder(
+                                                            borderSide: BorderSide(color: Colors.black), // Change the border color
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+
+                                                  ),
+                                                ),
+                                              ),
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  10))),
+                                              actions: [
+                                                ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: tdBGColor,
+                                                  ),
+                                                    child: const Text("Confirmer", style: TextStyle(color: Colors.white),),
+                                                    onPressed: () async {
+                                                      String newTitle = _titreController.text;
+                                                      String newDescription = _descriptionController.text;
+                                                        try {
+                                                          await taskService.editTask(task, newTitle, newDescription );
+                                                          setState(() {
+                                                            Navigator.of(context).pop();
+                                                          });
+                                                        } catch (error) {
+                                                          print('Error editing task: $error');
+                                                        }
+                                                    })
+                                              ],
+                                            );
+                                      });
                                     },
                                   ),
                                 ],
@@ -133,7 +201,7 @@ class _TaskScreenState extends State<TaskScreen> {
 
                           trailing: Checkbox(
                             side: const BorderSide(color: Colors.white, width: 2),
-                            value: task.isDone ?? false,
+                            value: task.isDone,
                             onChanged: (value) async {
                               try {
                                 setState(() {
@@ -171,7 +239,7 @@ class _TaskScreenState extends State<TaskScreen> {
           } else if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(color: tdBGColor)),
+                  style: const TextStyle(color: tdBGColor)),
             );
           } else {
             return const Center(
