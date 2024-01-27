@@ -4,9 +4,6 @@ import 'package:api_rest_front/services/task_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
-
-// création de mon écran
 class TaskScreen extends StatefulWidget {
   @override
   _TaskScreenState createState() => _TaskScreenState();
@@ -23,7 +20,8 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mes tâches'),
+        title: Text('Mes tâches', style: TextStyle(color: Colors.white)),
+        backgroundColor: tdBGColor,
       ),
       body: FutureBuilder<List<TaskModel>>(
         future: taskService.fetchTasks(),
@@ -38,19 +36,34 @@ class _TaskScreenState extends State<TaskScreen> {
                 child: Column(
                   children: tasks.map((TaskModel task) {
                     final DateFormat dateFormat = DateFormat.yMMMMd('fr_FR');
-
                     return Container(
                       width: MediaQuery.of(context).size.width * 0.8,
-                      margin: EdgeInsets.all(8.0),
+                      margin: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromARGB(255, 173, 173, 173).withOpacity(.9),
+                            blurRadius: 14.0, // soften the shadow
+                            spreadRadius: 0.0, //extend the shadow
+                            offset: const Offset(
+                              0.0, // Move to right 10  horizontally
+                              6.0, // Move to bottom 10 Vertically
+                            ),
+                          )
+                        ],
+                      ),
                       child: Card(
                         color: tdBGColor,
                         child: ListTile(
                           title: Text(
-                            "Titre: ${task.titre}" ?? 'No titre',
+                            "Titre: ${task.titre}",
                             style: TextStyle(
-                              decoration: task.isDone ?? false
+                              color: Colors.white,
+                              decoration: task.isDone
                                   ? TextDecoration.lineThrough
                                   : TextDecoration.none,
+                              decorationColor:
+                                  task.isDone ? Colors.white : null,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -58,29 +71,68 @@ class _TaskScreenState extends State<TaskScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  "Description: ${task.description}" ??
-                                  'No Description'),
+                                "Description: ${task.description}",
+                                style: const TextStyle(color: Colors.white),
+                              ),
                               Text(
-                                  "Créee le: ${task.createdAt != null ? dateFormat.format(task.createdAt!) : 'No Created At'}"),
+                                "Créee le: ${dateFormat.format(task.createdAt)}",
+                                style: const TextStyle(color: Colors.white),
+                              ),
                               Text(
-                                  "Pour le: ${dateFormat.format(task.dueDate!.toLocal())}" ??
-                                      'No Due At'),
-                              ElevatedButton(
-                                child: const Text('Supprimer'),
-                                onPressed: () async {
-                                  try {
-                                    await taskService.deleteTask(task);
-                                    setState(() {
-                                      tasks.remove(task);
-                                    });
-                                  } catch (error) {
-                                    print('Error deleting task: $error');
-                                  }
-                                },
+                                "Pour le: ${dateFormat.format(task.dueDate.toLocal())}",
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              SizedBox(height: 20.0),
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete,
+                                      color: tdBGColor,
+                                    ),
+                                    onPressed: () async {
+                                      try {
+                                        await taskService.deleteTask(task);
+                                        setState(() {
+                                          tasks.remove(task);
+                                        });
+                                      } catch (error) {
+                                        print('Error deleting task: $error');
+                                      }
+                                    },
+                                  ),
+                                  const SizedBox(
+                                      width:
+                                          10.0), // Adjust the width as needed
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: tdBGColor,
+                                    ),
+                                    onPressed: () async {
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
+
                           trailing: Checkbox(
+                            side: const BorderSide(color: Colors.white, width: 2),
                             value: task.isDone ?? false,
                             onChanged: (value) async {
                               try {
@@ -95,6 +147,19 @@ class _TaskScreenState extends State<TaskScreen> {
                                 print('Error updating task: $error');
                               }
                             },
+                            activeColor: tdBGColor,
+                            checkColor: Colors.white,
+                            fillColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  // Retourne la couleur de fond lorsque la case à cocher est sélectionnée.
+                                  return tdBGColor; // Couleur de fond noire
+                                }
+                                // Sinon, retourne null, ce qui utilise la couleur par défaut.
+                                return null;
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -105,13 +170,14 @@ class _TaskScreenState extends State<TaskScreen> {
             );
           } else if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}'),
+              child: Text('Error: ${snapshot.error}',
+                  style: TextStyle(color: tdBGColor)),
             );
           } else {
             return const Center(
               child: Text(
                 'Aucunes tâches pour le moment.',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 20, color: tdBGColor),
                 textAlign: TextAlign.center,
               ),
             );
@@ -119,6 +185,7 @@ class _TaskScreenState extends State<TaskScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: tdBGColor,
         onPressed: () async {
           showModalBottomSheet(
             context: context,
@@ -126,17 +193,14 @@ class _TaskScreenState extends State<TaskScreen> {
               return MyCustomForm(
                 onCreateTask: (TaskModel newTask) async {
                   try {
-                    // call service vers api pour créer
                     TaskModel createdTask =
                         await taskService.createTask(newTask);
                     print('Created task: $createdTask');
 
-                    // call api pour fetch
                     List<TaskModel> updatedTasks =
                         await taskService.fetchTasks();
                     print('Updated tasks: $updatedTasks');
 
-                    // mise a jour de l'état pour afficher
                     setState(() {
                       updatedTasks;
                     });
@@ -148,7 +212,10 @@ class _TaskScreenState extends State<TaskScreen> {
             },
           );
         },
-        child: Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -174,13 +241,16 @@ class MyCustomFormState extends State<MyCustomForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 100.0), // Ajoutez la marge en haut de 20.0 pixels (ajustez selon vos besoins)
+      padding: const EdgeInsets.all(30.0),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             TextFormField(
+              cursorColor: tdBGColor,
               controller: _titreController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -189,10 +259,16 @@ class MyCustomFormState extends State<MyCustomForm> {
                 return null;
               },
               decoration: const InputDecoration(
-                hintText: 'Titre',
+                labelText: 'Titre',
+                labelStyle: TextStyle(color: tdBGColor),
+                focusedBorder:OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 1.0),
+                ),
               ),
             ),
+            const SizedBox(height: 16.0),
             TextFormField(
+              cursorColor: tdBGColor,
               controller: _descriptionController,
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -201,48 +277,64 @@ class MyCustomFormState extends State<MyCustomForm> {
                 return null;
               },
               decoration: const InputDecoration(
-                hintText: 'Description',
+                floatingLabelStyle: TextStyle(color: tdBGColor),
+                labelText: 'Description',
+                labelStyle: TextStyle(color: tdBGColor),
+                focusedBorder:OutlineInputBorder(
+                  borderSide: BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 1.0),
+                ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  // Validation passed, proceed to create the task
-                  String titre = _titreController.text;
-                  String description = _descriptionController.text;
+            SizedBox(height: 30.0),
+            SizedBox(
+              width: 100.0,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    String titre = _titreController.text;
+                    String description = _descriptionController.text;
 
-                  // Optionally, show a date picker here for due date
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(9999),
-                  );
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(9999),
+                    );
 
-                  if (pickedDate != null) {
-                    setState(() {
-                      _selectedDate = pickedDate.toLocal();
-                    });
+                    if (pickedDate != null) {
+                      setState(() {
+                        _selectedDate = pickedDate.toLocal();
+                      });
+                    }
+
+                    TaskModel newTask = TaskModel(
+                      titre: titre,
+                      description: description,
+                      createdAt: DateTime.now(),
+                      dueDate: _selectedDate,
+                      isDone: false,
+                    );
+
+                    widget.onCreateTask(newTask);
+
+                    Navigator.of(context).pop();
                   }
-
-                  // Now, you have titre, description, and selected date to create the task
-                  TaskModel newTask = TaskModel(
-                    titre: titre,
-                    description: description,
-                    createdAt: DateTime.now(),
-                    dueDate: _selectedDate,
-                    isDone: false,
-                  );
-
-                  // Call the callback to create the task in the parent widget
-                  widget.onCreateTask(newTask);
-
-                  // Close the bottom sheet
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Créer ma tâche'),
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: tdBGColor,
+                    elevation: 5,
+                    shadowColor: tdBGColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    ),
+                child: const Text(
+                  'Créer ma tâche',
+                  style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                ),
+              ),
             ),
+
           ],
         ),
       ),
