@@ -285,7 +285,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 ),
               ),
             ),
-            SizedBox(height: 30.0),
+            const SizedBox(height: 20.0),
             SizedBox(
               width: 100.0,
               child: ElevatedButton(
@@ -295,11 +295,24 @@ class MyCustomFormState extends State<MyCustomForm> {
                     String description = _descriptionController.text;
 
                     DateTime? pickedDate = await showDatePicker(
+                      barrierColor: Color.fromARGB(48, 0, 0, 0).withOpacity(0.6),
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime.now(),
                       lastDate: DateTime(9999),
-                    );
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.light().copyWith(
+                              primaryColor:
+                                  tdBGColor,
+                              colorScheme:
+                                  const ColorScheme.light(primary: tdBGColor),
+                              buttonTheme: const ButtonThemeData(
+                                  textTheme: ButtonTextTheme.primary),
+                            ),
+                            child: child!,
+                          );
+                        });
 
                     if (pickedDate != null) {
                       setState(() {
